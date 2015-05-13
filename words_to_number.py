@@ -2,19 +2,19 @@ import re
 
 def words_to_number( sentence ):
 	
-	# Search for these numberwords
+	# Search for these word numbers (Supports up to a billion)
 	expression = ('\\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|'
 				'eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|'
 				'eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|'
 				'eighty|ninety|hundred|thousand|million|billion)\\b')
-	# Values of the words found in the expression
+	# Numbers corresponding to the words in the expression
 	values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 			10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
 			20, 30, 40, 50, 60, 70, 80, 90, 100, 1000, 1000000, 1000000000];
 	
 	reg = re.compile(expression, re.IGNORECASE)
 	
-	# Find all numberwords in the sentence and save the location.				
+	# Find all word numbers in the sentence and save the location.				
 	matches = []
 	start_idx = -1
 	end_idx = -1
@@ -24,7 +24,7 @@ def words_to_number( sentence ):
 		end_idx = m.end(0)
 		matches.append(m.group(0))
 	
-	# If no numberwords have been found, return the sentence
+	# If no word numbers have been found, return the original sentence
 	if (start_idx == -1):
 		return sentence
 	
@@ -36,7 +36,6 @@ def words_to_number( sentence ):
 			if (w == v):
 				matches[idxw] = values[idxv]
 				break
-	#print(matches)
 	
 	# Add and Multiply the values to create the total number using these steps
 	# 1) If the last value is smaller than the current one -> Multiply
@@ -81,19 +80,4 @@ def words_to_number( sentence ):
 		i += 1
 	total += sum
 	
-	return sentence[:start_idx] + str(total) + sentence[end_idx:]	
-	
-test = "I have eighty one apples."
-print(test)
-print(words_to_number(test))
-print("\n")
-
-test = "TWO HUNDRED THOUSAND DOLLARS IS WHAT YOU OWE ME!"
-print(test)
-print(words_to_number(test))
-print("\n")
-
-test = "There are six billion five hundred fifty four million nine hundred eleven thousand three hundred twenty one people."
-print(test)
-print(words_to_number(test))
-print("\n")
+	return sentence[:start_idx] + str(total) + sentence[end_idx:]
