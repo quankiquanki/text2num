@@ -1,3 +1,30 @@
+# This library is an implementation of a function to convert textual numbers
+# contained within a String to their Integer representation. It can handle multiple
+# textual numbers within one String. This function assumes that the input is correct 
+# English.
+#
+# This code is open source according to the MIT License as follows.
+#
+# Copyright (c) 2015 Quang Nguyen
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 import re
 
 VALUES = {
@@ -47,12 +74,14 @@ def text2num( sentence ):
     target_words = VALUES.keys()
     reg = re.compile('\\b('+'|'.join(target_words)+')\\b', re.IGNORECASE)
     
-    # Find all words that describe a number
+    # Find all textual numbers within the sentence.
+    # Uses spacing, the word ' and ' and simple English textual number forming to find groups.
     groups = []
     for m in reg.finditer(sentence):
         new_number = True        
         for g in groups:
-            if (m.start(0) - g[2] <= 1 or sentence[g[2]:m.start(0)].lower() == ' and ') and m.group(0) != g[0][-1]:
+            if ( (m.start(0) - g[2] <= 1 or sentence[g[2]:m.start(0)].lower() == ' and ')
+            and m.group(0) != g[0][-1] ):
                 g[0].append( m.group(0) )
                 g[2] = m.end(0)
                 new_number = False
@@ -61,12 +90,12 @@ def text2num( sentence ):
             new_number = False
             groups.append( [ [m.group(0)], m.start(0), m.end(0) ] )
 
-    # If no numbers have been found, return the original sentence
+    # If no textual numbers were found, return the original sentence
     if (len(groups) == 0):
         return sentence
     
-    # Convert words describing numbers into an integer number
-    # Algorithm from: https://github.com/ghewgill/text2num/blob/master/text2num.py
+    # Converts the found groups of textual numbers into an integer representation
+    # Modified Algorithm of: https://github.com/ghewgill/text2num/blob/master/text2num.py
     for g in groups:
         total = 0
         sum_value = 0  
@@ -90,7 +119,7 @@ def text2num( sentence ):
         total += sum_value
         g.append( total )
     
-    # Construct the new sentence
+    # Constructs the new sentence
     sentence_parts = []
     s_start = 0
     for g in groups:
