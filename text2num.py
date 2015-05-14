@@ -48,29 +48,58 @@ def text2num( sentence ):
     reg = re.compile('\\b('+'|'.join(target_words)+')\\b', re.IGNORECASE)
     
     # Find all words that describe a number
-    matches = []
+    groups = []
     for m in reg.finditer(sentence):
-        matches.append( [m.group(0), m.start(0), m.end(0)] )
+        new_number = True        
+        for g in groups:
+            if (m.start(0) - g[2] <= 1 or sentence[g[2]:m.start(0)].lower() == ' and ') and m.group(0) != g[0][-1]:
+                g[0].append( m.group(0) )
+                g[2] = m.end(0)
+                new_number = False
+                
+        if new_number:
+            new_number = False
+            groups.append( [ [m.group(0)], m.start(0), m.end(0) ] )
 
     # If no numbers have been found, return the original sentence
-    if (len(matches) == 0):
+    if (len(groups) == 0):
         return sentence
     
     # Convert words describing numbers into an integer number
     # Algorithm from: https://github.com/ghewgill/text2num/blob/master/text2num.py
-    total = 0
-    sum_value = 0
-    for m in matches:
-        v = VALUES.get(m[0].lower(), None)
-        if v < 100:
-            sum_value += v
-        elif v == 100: # Special case
-            sum_value *= 100
-        else:
-            total += sum_value * v
-            sum_value = 0
-    total += sum_value
+    for g in groups:
+        total = 0
+        sum_value = 0  
+        for m in g[0]:
+            v = VALUES.get(m.lower(), None)
+            if v < 100:
+                sum_value += v
+            
+            # Special case for independent magnitudes
+            elif sum_value == 0:
+                sum_value = v
+                continue
+            
+            # Special case
+            elif v == 100:
+                sum_value *= 100
+                
+            else:
+                total += sum_value * v
+                sum_value = 0
+        total += sum_value
+        g.append( total )
     
-    start_idx = [i[1] for i in matches]
-    end_idx = [i[2] for i in matches]
-    return sentence[:min(start_idx)] + str(total) + sentence[max(end_idx):]
+    # Construct the new sentence
+    sentence_parts = []
+    s_start = 0
+    for g in groups:
+        g_start = g[1]
+        g_end = g[2]
+        
+        sentence_parts.append(sentence[s_start:g_start])
+        sentence_parts.append( str(g[3]) )
+        s_start = g_end
+    sentence_parts.append( sentence[s_start:] )
+    
+    return ''.join(sentence_parts)
