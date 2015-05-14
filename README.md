@@ -17,5 +17,5 @@ Example
 
 Things to Note
 ===============
-    - It can handle multiple textual numbers in an input string.
-    - It assumes the input string is in english and that it is correctly written. So no oddly described numbers like "one million thousand two hundred billion million five"
+- It can handle multiple textual numbers in an input string.
+- It assumes the input string is in english and that it is correctly written. So no oddly described numbers like "one million thousand two hundred billion million five"
